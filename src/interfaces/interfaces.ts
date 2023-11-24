@@ -8,5 +8,5 @@ export interface UserInfo {
 export interface IPost {
   title: string;
   content: string;
-  authorId: string;
+  authorId: number;
 }

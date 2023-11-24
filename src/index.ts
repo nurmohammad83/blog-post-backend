@@ -2,6 +2,9 @@ import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { typeDefs } from "./schema";
 import { resolvers } from "./resolvers";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const main = async () => {
   const server = new ApolloServer({
@@ -11,6 +14,11 @@ const main = async () => {
 
   const { url } = await startStandaloneServer(server, {
     listen: { port: 4000 },
+    context: async () => {
+      return {
+        prisma,
+      };
+    },
   });
 
   console.log(`🚀  Server ready at: ${url}`);
