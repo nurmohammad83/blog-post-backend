@@ -5,6 +5,7 @@ export const typeDefs = `#graphql
     user:User
     users:[User]
     posts:[Post]
+    profile(id:ID!):Profile
   }
 
   type Mutation{
@@ -12,6 +13,7 @@ export const typeDefs = `#graphql
       name:String!
       email:String!
       password:String!
+      bio: String
       ): AuthArgs
 
       signin(
@@ -24,6 +26,7 @@ type AuthArgs {
   userError:String
   token: String
 }
+
   type Post {
     id: ID!
     title: String!

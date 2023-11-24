@@ -1,28 +1,37 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { jwtHelper } from "../utils/jwtHelper";
+import config from "../config";
+import { UserInfo } from "../interfaces/interfaces";
 
 const prisma = new PrismaClient();
-
-interface UserIfo {
-  name: string;
-  email: string;
-  password: string;
-}
 
 export const resolvers = {
   Query: {
     users: async (parent: any, args: any, context: any) => {
       return await prisma.user.findMany();
     },
+    profile: async (parent: any, { id }: number | any, context: any) => {
+      return await prisma.user.findFirst({
+        where: {
+          id: id,
+        },
+      });
+    },
   },
   Mutation: {
-    signup: async (parent: any, args: UserIfo, context: any) => {
+    signup: async (parent: any, args: UserInfo, context: any) => {
       const hashedPassword = await bcrypt.hash(args.password, 12);
 
-      if (args.email) {
+      const isExistUser = await prisma.user.findFirst({
+        where: {
+          email: args.email,
+        },
+      });
+      if (isExistUser) {
         return {
-          userError: "User already exist!",
+          userError: "Already this email is register!",
           token: null,
         };
       }
@@ -34,16 +43,26 @@ export const resolvers = {
         },
       });
 
-      const token = jwt.sign({ userId: newUser.id }, "secret", {
-        expiresIn: "1d",
-      });
+      if (args.bio) {
+        await prisma.profile.create({
+          data: {
+            bio: args.bio,
+            userId: newUser.id,
+          },
+        });
+      }
+
+      const token = await jwtHelper(
+        { userId: newUser.id },
+        config.jwt.secret as string
+      );
       return {
         userError: null,
         token,
       };
     },
 
-    signin: async (parent: any, args: UserIfo, context: any) => {
+    signin: async (parent: any, args: UserInfo, context: any) => {
       const user = await prisma.user.findFirst({
         where: {
           email: args.email,
@@ -63,12 +82,17 @@ export const resolvers = {
         };
       }
 
-      const token = jwt.sign({ userId: user.id }, "secret", {
-        expiresIn: "1d",
-      });
+      const token = await jwtHelper(
+        { userId: user.id },
+        config.jwt.secret as string
+      );
       return {
         token,
       };
+    },
+
+    createPost: async (parent: any, args: any, context: any) => {
+      await prisma.post.create({ data: args });
     },
   },
 };
