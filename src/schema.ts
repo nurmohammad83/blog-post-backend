@@ -20,6 +20,12 @@ export const typeDefs = `#graphql
         email:String!
         password:String!
       ): AuthArgs
+
+      createPost(
+        title:String!
+        content:String!
+        authorId: String!
+      ):Post
   }
 
 type AuthArgs {

@@ -90,7 +90,6 @@ export const resolvers = {
         token,
       };
     },
-
     createPost: async (parent: any, args: any, context: any) => {
       await prisma.post.create({ data: args });
     },
