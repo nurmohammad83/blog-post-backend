@@ -1,11 +1,10 @@
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { IPost, UserInfo } from "../../interfaces/interfaces";
 import { jwtHelper } from "../../utils/jwtHelper";
 import config from "../../config";
 
 export const Mutation = {
-  signup: async (parent: any, args: UserInfo, context: any) => {
+  signup: async (parent: any, args: UserInfo, { prisma }: any) => {
     const hashedPassword = await bcrypt.hash(args.password, 12);
 
     const isExistUser = await prisma.user.findFirst({
@@ -46,7 +45,7 @@ export const Mutation = {
     };
   },
 
-  signin: async (parent: any, args: UserInfo, context: any) => {
+  signin: async (parent: any, args: UserInfo, { prisma }: any) => {
     const user = await prisma.user.findFirst({
       where: {
         email: args.email,
@@ -75,7 +74,7 @@ export const Mutation = {
     };
   },
 
-  createPost: async (parent: any, args: IPost, context: any) => {
+  createPost: async (parent: any, args: IPost, { prisma }: any) => {
     const result = await prisma.post.create({ data: args });
     return result;
   },
