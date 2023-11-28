@@ -3,6 +3,9 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 import { typeDefs } from "./schema";
 import { resolvers } from "./resolvers";
 import { PrismaClient } from "@prisma/client";
+import { Context } from "./interfaces/interfaces";
+import { jwtHelper } from "./utils/jwtHelper";
+import config from "./config";
 
 const prisma = new PrismaClient();
 
@@ -14,7 +17,11 @@ const main = async () => {
 
   const { url } = await startStandaloneServer(server, {
     listen: { port: 4000 },
-    context: async () => {
+    context: async ({ req }): Promise<Context> => {
+      const deoced = await jwtHelper.verifyToken(
+        req.headers.authorization as string,
+        config.jwt.secret as string
+      );
       return {
         prisma,
       };

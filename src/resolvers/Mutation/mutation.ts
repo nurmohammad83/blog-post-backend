@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
-import { IPost, UserInfo } from "../../interfaces/interfaces";
+import { Context, IPost, UserInfo } from "../../interfaces/interfaces";
 import { jwtHelper } from "../../utils/jwtHelper";
 import config from "../../config";
 
 export const Mutation = {
-  signup: async (parent: any, args: UserInfo, { prisma }: any) => {
+  signup: async (parent: any, args: UserInfo, { prisma }: Context) => {
     const hashedPassword = await bcrypt.hash(args.password, 12);
 
     const isExistUser = await prisma.user.findFirst({
@@ -35,7 +35,7 @@ export const Mutation = {
       });
     }
 
-    const token = await jwtHelper(
+    const token = await jwtHelper.createToken(
       { userId: newUser.id },
       config.jwt.secret as string
     );
@@ -45,7 +45,7 @@ export const Mutation = {
     };
   },
 
-  signin: async (parent: any, args: UserInfo, { prisma }: any) => {
+  signin: async (parent: any, args: UserInfo, { prisma }: Context) => {
     const user = await prisma.user.findFirst({
       where: {
         email: args.email,
@@ -65,7 +65,7 @@ export const Mutation = {
       };
     }
 
-    const token = await jwtHelper(
+    const token = await jwtHelper.createToken(
       { userId: user.id },
       config.jwt.secret as string
     );
@@ -74,8 +74,9 @@ export const Mutation = {
     };
   },
 
-  createPost: async (parent: any, args: IPost, { prisma }: any) => {
-    const result = await prisma.post.create({ data: args });
-    return result;
+  addPost: async (parent: any, args: any, { prisma }: Context) => {
+    // console.log(args);
+    // const result = await prisma.post.create({ data: args });
+    // return result;
   },
 };

@@ -14,23 +14,27 @@ export const typeDefs = `#graphql
       email:String!
       password:String!
       bio: String
-      ): AuthArgs
+      ): AuthPayload
 
       signin(
         email:String!
         password:String!
-      ): AuthArgs
+      ): AuthPayload
 
-      createPost(
+      addPost(
         title:String!
         content:String!
-        authorId: String!
-      ):Post
+      ):PostPayload
   }
 
-type AuthArgs {
+type AuthPayload {
   userError:String
   token: String
+}
+
+type PostPayload {
+  userError:String
+  post: Post
 }
 
   type Post {
