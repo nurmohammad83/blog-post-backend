@@ -35,7 +35,7 @@ export const Mutation = {
       });
     }
 
-    const token = await jwtHelper.createToken(
+    const token = await jwtHelper.generateToken(
       { userId: newUser.id },
       config.jwt.secret as string
     );
@@ -65,7 +65,7 @@ export const Mutation = {
       };
     }
 
-    const token = await jwtHelper.createToken(
+    const token = await jwtHelper.generateToken(
       { userId: user.id },
       config.jwt.secret as string
     );
@@ -74,9 +74,30 @@ export const Mutation = {
     };
   },
 
-  addPost: async (parent: any, args: any, { prisma }: Context) => {
-    // console.log(args);
-    // const result = await prisma.post.create({ data: args });
-    // return result;
+  addPost: async (parent: any, args: any, { prisma, userInfo }: Context) => {
+    if (!userInfo) {
+      return {
+        userError: "Unauthorized",
+        post: null,
+      };
+    }
+    if (!args.title || !args.content) {
+      return {
+        userError: "Title and content is required!",
+        post: null,
+      };
+    }
+    const newPost = await prisma.post.create({
+      data: {
+        title: args.title,
+        content: args.content,
+        authorId: userInfo.userId,
+      },
+    });
+
+    return {
+      userError: null,
+      post: newPost,
+    };
   },
 };

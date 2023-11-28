@@ -1,3 +1,4 @@
+import jwt, { Secret } from "jsonwebtoken";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { typeDefs } from "./schema";
@@ -18,16 +19,17 @@ const main = async () => {
   const { url } = await startStandaloneServer(server, {
     listen: { port: 4000 },
     context: async ({ req }): Promise<Context> => {
-      const deoced = await jwtHelper.verifyToken(
-        req.headers.authorization as string,
-        config.jwt.secret as string
+      const userInfo = await jwtHelper.getUserInfoFromToken(
+        req.headers.authorization as string
       );
       return {
         prisma,
+        userInfo,
       };
     },
   });
 
   console.log(`🚀  Server ready at: ${url}`);
 };
+
 main();
