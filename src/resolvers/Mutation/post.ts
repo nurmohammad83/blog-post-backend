@@ -64,7 +64,6 @@ export const postResolver = {
   },
 
   deletePost: async (parent: any, args: any, { prisma, userInfo }: Context) => {
-    console.log(args, "dele");
     if (!userInfo) {
       return {
         userError: "Unauthorized",
